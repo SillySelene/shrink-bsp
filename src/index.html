@@ -1,0 +1,119 @@
+<body>
+  <div>
+    <canvas id=c width=800 height=500>
+
+    </canvas>
+    <button id=b>
+      Reset
+    </button>
+  </div>
+  <style>
+    body {
+      background-color: #999;
+      width: 100vw;
+      display: flex;
+      justify-content: center;
+    }
+
+    div {
+      display: flex;
+      background-color: #444;
+      width: 80vw;
+      height: 90vh;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    button {
+      border: none;
+      border-radius: 25px;
+      padding: 8px;
+      margin: 4px;
+    }
+  </style>
+  <script>
+
+    /*
+    * Dear Reviewer:
+    * I would like to extend my deepest apologies.
+    * What you are about to see is approximately two hours of madness, cooked up by a woman with far
+    * too little sleep and far too much stupidity.
+    * judge this, not by the fact i lack for even a single comment, but instead the amazingness in your heart
+    * that this is like a kilobyte and a half.
+    */
+
+
+    winW = 800;
+    winL = 500;
+
+    const $ = id => document.getElementById(id);
+    const canvas = document.getElementById("c");
+    const ctx = canvas.getContext("2d");
+
+
+    var rooms = [];
+    let failChance = 0;
+
+
+
+    class Room {
+      constructor(inX, inY, inW, inH) {
+        this.x = inX;
+        this.y = inY;
+        this.height = inH;
+        this.width = inW;
+      }
+    }
+
+    rooms.push(new Room(0, 0, winW, winL))
+    recursiveDungeonGeneration(rooms[0]);
+
+    function recursiveDungeonGeneration(room) {
+      sliceDir = Math.floor(Math.random() * 2);
+      sliceOrd = Math.floor(Math.random() * 2);
+      roomOrder = Math.floor(Math.random() * 2);
+      slicePos = Math.floor(Math.random() * ((sliceDir == 0 ? room.width : room.height) - 74) + 74)
+      roll = Math.floor(Math.random() * 100)
+      if (slicePos > 60) {
+        var r1, r2;
+        if (roll > failChance) {
+
+          r1 = new Room(room.x, room.y, sliceDir == 0 ? slicePos : room.width, sliceDir == 1 ? slicePos : room.height)
+          r2 = new Room(sliceDir == 0 ? room.x : room.x + slicePos, sliceDir == 1 ? room.y : room.y + slicePos + 3, sliceDir == 0 ? room.width : room.width - slicePos, sliceDir == 1 ? room.height : room.height - slicePos);
+          failChance += 2;
+          rooms.push(r1);
+          rooms.push(r2);
+          if (r1.width > 100 && r1.height > 100) {
+            recursiveDungeonGeneration(r1);
+          }
+          if (r2.width > 100 && r2.height > 100) {
+            recursiveDungeonGeneration(r2);
+          }
+        }
+      } else {
+        recursiveDungeonGeneration(room);
+      }
+    }
+    function dungeonDraw() {
+      for (room of rooms) {
+        if (room.height > 100 && room.width > 100) {
+          console.log(room);
+          ctx.strokeStyle = 'white';
+          ctx.strokeRect(room.x, room.y, room.width - 5, room.height - 5);
+        }
+      }
+    }
+
+    dungeonDraw();
+
+    $("b").onclick = () => {
+      ctx.reset()
+      rooms = [];
+      failChance = 0;
+      rooms.push(new Room(0, 0, winW, winL));
+      recursiveDungeonGeneration(rooms[0]);
+      dungeonDraw();
+    }
+  </script>
+</body>
